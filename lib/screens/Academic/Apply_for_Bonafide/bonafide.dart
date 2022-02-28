@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 import 'package:fusion/Components/appBar.dart';
 import 'package:fusion/Components/side_drawer.dart';
 import 'package:fusion/models/academic.dart';
@@ -40,6 +41,7 @@ class _BonafideState extends State<Bonafide> {
   String bonafidefor="Bonafide for Fee Structure";
   @override
   Widget build(BuildContext context) {
+    TextEditingController otherReasonTextEditingController = new TextEditingController();
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     loadlist();
     return Scaffold(
@@ -63,6 +65,21 @@ class _BonafideState extends State<Bonafide> {
               },
               isExpanded: true,
             ),
+
+            Container(
+              child: _value == 5? Padding(
+                padding: EdgeInsets.all(15),
+                child: TextField(
+                  controller: otherReasonTextEditingController,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Reason",
+                      hintText: "Enter Your Reason"
+                  ),
+                ),
+              ) : Container(),
+            ),
+            
             ElevatedButton(
                 onPressed: ()
                 async {
@@ -70,7 +87,20 @@ class _BonafideState extends State<Bonafide> {
                   print("Last Name: " + arguments['lastName']);
                   print("Branch: " + arguments['branch']);
                   PdfService pdfService = new PdfService();
-                  final data = await pdfService.generatePdf(bonafidefor == "Other purposes"? "_______" : bonafidefor.substring(13), arguments["firstName"] + " " + arguments["lastName"], "2019064", arguments["branch"], "B.TECH");
+
+                  if(_value == 5 && otherReasonTextEditingController.text.toString() == "")
+                    {
+                      /*Fluttertoast.showToast(
+                          msg: "Please Enter Your Reason",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);*/
+                      return;
+                    }
+                  final data = await pdfService.generatePdf(bonafidefor == "Other purposes"? otherReasonTextEditingController.text.toString() : bonafidefor.substring(13), arguments["firstName"] + " " + arguments["lastName"], "2019064", arguments["branch"], "B.TECH");
                   pdfService.openFile(data);
                 },
                 child: Text("Submit"),
